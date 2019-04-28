@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.168
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PricesWatcher", "PricesWatcher\PricesWatcher.csproj", "{0A94D2CE-9050-4EEE-B49F-B80FC19187ED}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0A94D2CE-9050-4EEE-B49F-B80FC19187ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A94D2CE-9050-4EEE-B49F-B80FC19187ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A94D2CE-9050-4EEE-B49F-B80FC19187ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A94D2CE-9050-4EEE-B49F-B80FC19187ED}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C4BF8F3E-BCF9-4D93-AA61-E2956F074467}
+	EndGlobalSection
+EndGlobal
