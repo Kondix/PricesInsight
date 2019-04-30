@@ -74,9 +74,34 @@ namespace PricesWatcher
         {
             var databaseContext = new DatabaseContext();
 
+            //var allHotels = databaseContext.Hotels;
+            //foreach (var hotel in allHotels)
+            //{
+            //    var hotelOffers = databaseContext.Offers.Include(x => x.Hotel)
+            //        .Where(x => x.Hotel.Id == hotel.Id)
+            //        .Where(x => x.DepartureDateTime > startDate)
+            //        .Where(x => x.DepartureDateTime < endTime);
+
+            //    if (!hotelOffers.Any())
+            //        continue;
+
+            //    Console.WriteLine($"Found hotel: {hotel.HotelCode} with {hotel.HotelStandard} stars.");
+            //    foreach (var offer in hotelOffers)
+            //    {
+            //        Console.WriteLine($"   Offer {offer.Code} with room {offer.RoomName} departure {offer.DepartureDateTime} arrival {offer.ReturnDate.Date}");
+            //        var prices = databaseContext.Prices.Include(x => x.Offer).Where(x => x.Offer.Id == offer.Id).OrderBy(x => x.Timestamp);
+            //        foreach (var price in prices)
+            //        {
+            //            Console.WriteLine($"       Price {price.StandardPrice} discount price {price.DiscountPrice} collected on: {price.Timestamp}");
+            //        }
+            //    }
+            //}
+
+
+
             var topOffers = databaseContext.Prices
                 .Where(x => x.Timestamp.Date == DateTime.UtcNow.Date)
-                .Join(databaseContext.Offers.Include(x => x.Hotel), price => price.Offer.Id, offer => offer.Id, (price, offer) => new {price, offer})
+                .Join(databaseContext.Offers.Include(x => x.Hotel), price => price.Offer.Id, offer => offer.Id, (price, offer) => new { price, offer })
                 .Where(x => x.offer.DepartureDateTime > startDate)
                 .Where(x => x.offer.DepartureDateTime < endTime)
                 .Where(x => x.offer.Board == "All Inclusive")

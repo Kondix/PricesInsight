@@ -15,7 +15,7 @@ namespace PricesWatcher.Database
         {
             optionsBuilder.UseSqlServer(@"Server=localhost;Database=master;Trusted_Connection=True;", builder =>
             {
-                builder.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null);
+                builder.EnableRetryOnFailure(10, TimeSpan.FromSeconds(20), null);
             });
 
             base.OnConfiguring(optionsBuilder);
