@@ -23,6 +23,7 @@ namespace PricesWatcher
             Console.WriteLine("Type 1 for hotel database update.");
             Console.WriteLine("Type 2 for hotel search.");
             Console.WriteLine("Type 3 for prices difference check.");
+            Console.WriteLine("Type 4 for offer prices display.");
             Console.WriteLine("Type D for database clear.");
 
             while (true)
@@ -52,6 +53,58 @@ namespace PricesWatcher
                         if (discountPrice != null && pricesForOffer.Any(x => x.DiscountPrice != discountPrice))
                         {
                             Console.WriteLine("Discount price differs.");
+                        }
+                    }
+                    break;
+                }
+                if (input == "4")
+                {
+                    while (true)
+                    {
+                        Console.WriteLine("Type hotel code:");
+                        var hotelCode = Console.ReadLine();
+                        Console.WriteLine("Type departure date (dd-mm-yyyy):");
+                        var departureDateString = Console.ReadLine();
+                        var departureDate = DateTime.ParseExact(departureDateString, "dd-MM-yyyy", CultureInfo.InvariantCulture);
+
+                        var databaseContext = new DatabaseContext();
+                        var hotel = databaseContext.Hotels.FirstOrDefault(x => x.HotelCode == hotelCode);
+                        if (hotel == null)
+                        {
+                            Console.WriteLine("Could not find hotel with given hotel code.");
+                            continue;
+                        }
+
+                        var hotelOffers = databaseContext.Offers
+                            .Include(x => x.Hotel)
+                            .Where(x => x.Hotel.Id == hotel.Id)
+                            .Where(x => x.DepartureDateTime.Date == departureDate);
+
+                        if (!hotelOffers.Any())
+                        {
+                            Console.WriteLine("Could not find hotel offer for given hotel code and departure date.");
+                            continue;
+                        }
+
+                        foreach (var offer in hotelOffers)
+                        {
+                            Console.WriteLine($"Room code: {offer.RoomCode} Board: {offer.Board} Code: {offer.Code} Name: {offer.RoomName}");
+
+                            var offerPrices = databaseContext.Prices
+                                .Include(x => x.Offer)
+                                .Where(x => x.Offer.Id == offer.Id);
+
+                            foreach (var price in offerPrices)
+                            {
+                                Console.WriteLine($"{price.Timestamp.Date:d} Price: {price.StandardPrice} Discounted: {price.DiscountPrice}");
+                            }
+                        }
+
+                        Console.WriteLine("Continue searching? (Y/N)");
+                        var decision = Console.ReadLine();
+                        if (decision != "Y")
+                        {
+                            break;
                         }
                     }
                     break;
