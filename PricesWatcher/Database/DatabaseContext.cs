@@ -13,9 +13,9 @@ namespace PricesWatcher.Database
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Server=localhost;Database=master;Trusted_Connection=True;", builder =>
+            optionsBuilder.UseSqlServer("Server=localhost;Database=master;Trusted_Connection=True;", builder =>
             {
-                builder.EnableRetryOnFailure(10, TimeSpan.FromSeconds(20), null);
+                builder.EnableRetryOnFailure(10, TimeSpan.FromSeconds(60), null);
             });
 
             base.OnConfiguring(optionsBuilder);

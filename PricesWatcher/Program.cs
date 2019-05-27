@@ -20,93 +20,25 @@ namespace PricesWatcher
         public static void Main(string[] args)
         {
             Console.WriteLine("Menu:");
-            Console.WriteLine("Type 1 for hotel database update.");
-            Console.WriteLine("Type 2 for hotel search.");
-            Console.WriteLine("Type 3 for prices difference check.");
             Console.WriteLine("Type 4 for offer prices display.");
+            Console.WriteLine("Type 9 for to update Side hotel.");
             Console.WriteLine("Type D for database clear.");
+            Console.WriteLine("Type M for clear database duplicates.");
 
             while (true)
             {
-                var input = Console.ReadLine();
-                if (input == "1")
+               var input = Settings.Default.ProgramMode;
+               if (input == "4")
+               {
+                   DisplayOfferPrices();
+                   break;
+               }
+
+                if (input == "9")
                 {
-                    HandleHotelDatabaseUpdate(args).ConfigureAwait(false).GetAwaiter().GetResult();
-                    break;
-                }
-                if (input == "2")
-                {
-                    HotelSearch(new DateTime(2019, 07, 13), new DateTime(2019, 07, 17));
-                    break;
-                }
-                if (input == "3")
-                {
-                    var databaseContext = new DatabaseContext();
-                    foreach (var offer in databaseContext.Offers)
-                    {
-                        var pricesForOffer = databaseContext.Prices
-                            .Include(x => x.Offer)
-                            .Where(x => x.Offer.Id == offer.Id);
-
-                        var discountPrice = pricesForOffer.FirstOrDefault()?.DiscountPrice;
-
-                        if (discountPrice != null && pricesForOffer.Any(x => x.DiscountPrice != discountPrice))
-                        {
-                            Console.WriteLine("Discount price differs.");
-                        }
-                    }
-                    break;
-                }
-                if (input == "4")
-                {
-                    while (true)
-                    {
-                        Console.WriteLine("Type hotel code:");
-                        var hotelCode = Console.ReadLine();
-                        Console.WriteLine("Type departure date (dd-mm-yyyy):");
-                        var departureDateString = Console.ReadLine();
-                        var departureDate = DateTime.ParseExact(departureDateString, "dd-MM-yyyy", CultureInfo.InvariantCulture);
-
-                        var databaseContext = new DatabaseContext();
-                        var hotel = databaseContext.Hotels.FirstOrDefault(x => x.HotelCode == hotelCode);
-                        if (hotel == null)
-                        {
-                            Console.WriteLine("Could not find hotel with given hotel code.");
-                            continue;
-                        }
-
-                        var hotelOffers = databaseContext.Offers
-                            .Include(x => x.Hotel)
-                            .Where(x => x.Hotel.Id == hotel.Id)
-                            .Where(x => x.DepartureDateTime.Date == departureDate);
-
-                        if (!hotelOffers.Any())
-                        {
-                            Console.WriteLine("Could not find hotel offer for given hotel code and departure date.");
-                            continue;
-                        }
-
-                        foreach (var offer in hotelOffers)
-                        {
-                            Console.WriteLine($"Room code: {offer.RoomCode} Board: {offer.Board} Code: {offer.Code} Name: {offer.RoomName}");
-
-                            var offerPrices = databaseContext.Prices
-                                .Include(x => x.Offer)
-                                .Where(x => x.Offer.Id == offer.Id);
-
-                            foreach (var price in offerPrices)
-                            {
-                                Console.WriteLine($"{price.Timestamp.Date:d} Price: {price.StandardPrice} Discounted: {price.DiscountPrice}");
-                            }
-                        }
-
-                        Console.WriteLine("Continue searching? (Y/N)");
-                        var decision = Console.ReadLine();
-                        if (decision != "Y")
-                        {
-                            break;
-                        }
-                    }
+                    var hotel = new Domain.Offer {hotelCode = Settings.Default.HotelCode, hotelStandard = 4 };
+                    var task = HandleHotel(hotel, new RequestSender());
+                    Task.WaitAll(task);
                     break;
                 }
                 if (input == "D")
@@ -118,141 +50,199 @@ namespace PricesWatcher
                     databaseContext.SaveChanges();
                     break;
                 }
-                Console.WriteLine("Wrong input. Try again.");
-            }
 
+                if (input == "M")
+                {
+                    var databaseContext = new DatabaseContext();
+                    var hotels = databaseContext.Hotels;
+
+                    var pricesToDelete = new List<Price>();
+
+                    foreach (var hotel in hotels)
+                    {
+                        var hotelOffers = databaseContext.Offers
+                            .Include(x => x.Hotel)
+                            .Where(x => x.Hotel.Id == hotel.Id);
+
+                        foreach (var hotelOffer in hotelOffers)
+                        {
+                            var offerPrices = databaseContext.Prices
+                                .Include(x => x.Offer)
+                                .Where(x => x.Offer.Id == hotelOffer.Id);
+
+                            var uniqueOfferPrices = offerPrices.ToHashSet();
+                            pricesToDelete.AddRange(offerPrices.Except(uniqueOfferPrices));
+                        }
+                    }
+
+                    Console.WriteLine($"Will remove {pricesToDelete.Count} duplicated prices.");
+                    databaseContext.Prices.RemoveRange(pricesToDelete);
+                    databaseContext.SaveChanges();
+                    break;
+                }
+            }
         }
 
-        private static void HotelSearch(DateTime startDate, DateTime endTime)
+        private static void DisplayOfferPrices()
         {
-            var databaseContext = new DatabaseContext();
-
-            //var allHotels = databaseContext.Hotels;
-            //foreach (var hotel in allHotels)
-            //{
-            //    var hotelOffers = databaseContext.Offers.Include(x => x.Hotel)
-            //        .Where(x => x.Hotel.Id == hotel.Id)
-            //        .Where(x => x.DepartureDateTime > startDate)
-            //        .Where(x => x.DepartureDateTime < endTime);
-
-            //    if (!hotelOffers.Any())
-            //        continue;
-
-            //    Console.WriteLine($"Found hotel: {hotel.HotelCode} with {hotel.HotelStandard} stars.");
-            //    foreach (var offer in hotelOffers)
-            //    {
-            //        Console.WriteLine($"   Offer {offer.Code} with room {offer.RoomName} departure {offer.DepartureDateTime} arrival {offer.ReturnDate.Date}");
-            //        var prices = databaseContext.Prices.Include(x => x.Offer).Where(x => x.Offer.Id == offer.Id).OrderBy(x => x.Timestamp);
-            //        foreach (var price in prices)
-            //        {
-            //            Console.WriteLine($"       Price {price.StandardPrice} discount price {price.DiscountPrice} collected on: {price.Timestamp}");
-            //        }
-            //    }
-            //}
-
-
-
-            var topOffers = databaseContext.Prices
-                .Where(x => x.Timestamp.Date == DateTime.UtcNow.Date)
-                .Join(databaseContext.Offers.Include(x => x.Hotel), price => price.Offer.Id, offer => offer.Id, (price, offer) => new { price, offer })
-                .Where(x => x.offer.DepartureDateTime > startDate)
-                .Where(x => x.offer.DepartureDateTime < endTime)
-                .Where(x => x.offer.Board == "All Inclusive")
-                .OrderBy(x => x.price.DiscountPrice)
-                .Take(100).ToList();
-
-            foreach (var offer in topOffers)
+            while (true)
             {
-                Console.WriteLine($"Found hotel: {offer.offer.Hotel.HotelCode} on date: {offer.offer.DepartureDateTime} - {offer.offer.ReturnDate} for price: {offer.price.DiscountPrice} offer code: {offer.offer.Code}");
+                var hotelCode = Settings.Default.HotelCode;
+                var departureDate = Settings.Default.DepartureDate;
+
+                var databaseContext = new DatabaseContext();
+                var hotel = databaseContext.Hotels.FirstOrDefault(x => x.HotelCode == hotelCode);
+                if (hotel == null)
+                {
+                    Console.WriteLine("Could not find hotel with given hotel code.");
+                    continue;
+                }
+
+                var hotelOffers = databaseContext.Offers
+                    .Include(x => x.Hotel)
+                    .Where(x => x.Hotel.Id == hotel.Id)
+                    .Where(x => x.DepartureDateTime.Date == departureDate);
+
+                if (!hotelOffers.Any())
+                {
+                    Console.WriteLine("Could not find hotel offer for given hotel code and departure date.");
+                    continue;
+                }
+
+                foreach (var offer in hotelOffers)
+                {
+                    Console.WriteLine(
+                        $"Room code: {offer.RoomCode} Board: {offer.Board} Code: {offer.Code} Name: {offer.RoomName}");
+
+                    var offerPrices = databaseContext.Prices
+                        .Include(x => x.Offer)
+                        .Where(x => x.Offer.Id == offer.Id);
+
+                    foreach (var price in offerPrices)
+                    {
+                        Console.WriteLine(
+                            $"{price.Timestamp.Date:g} Price: {price.StandardPrice} Discounted: {price.DiscountPrice}");
+                    }
+                }
+
+                Console.WriteLine("Continue searching? (Y/N)");
+                var decision = Console.ReadLine();
+                if (decision != "Y")
+                {
+                    break;
+                }
             }
-
-            Console.ReadLine();
-        }
-
-        public static async Task HandleHotelDatabaseUpdate(string[] args)
-        {
-            var requestSender = new RequestSender();
-            var hotels = await GetHotelOffers(requestSender, "KTW");
-            var tasks = new List<Task>();
-            foreach (var hotel in hotels.offers)
-            {
-                tasks.Add(HandleHotel(hotel, requestSender));
-            }
-
-            Task.WaitAll(tasks.ToArray());
         }
 
         private static async Task HandleHotel(Domain.Offer hotel, RequestSender requestSender)
         {
-            var databaseContext = new DatabaseContext();
             try
             {
-                var matchingHotel = databaseContext.Hotels.FirstOrDefault(x => x.HotelCode == hotel.hotelCode);
-
-                if (matchingHotel == null)
+                using (var databaseContext = new DatabaseContext())
                 {
-                    matchingHotel = new Hotel {HotelCode = hotel.hotelCode, HotelStandard = hotel.hotelStandard};
-                    databaseContext.Hotels.Add(matchingHotel);
-                }
+                    var matchingHotel = FindMatchingHotel(databaseContext, hotel) ?? CreateNewHotel(databaseContext, hotel);
 
-                await databaseContext.TripAdvisorHotelRatings.AddAsync(new TripAdvisorHotelRating
-                {
-                    Hotel = matchingHotel,
-                    Timestamp = DateTime.UtcNow,
-                    TripAdvisorRating = hotel.tripAdvisorRating,
-                    TripAdvisorReviewsNo = hotel.tripAdvisorReviewsNo
-                });
+                    AddTripAdvisorHotelRating(databaseContext, hotel, matchingHotel);
 
-                var offersResponse = await GetAllOffers(hotel.hotelCode, requestSender);
-                var allOffersForHotel = databaseContext.Offers.Where(x => x.Hotel == matchingHotel);
-                foreach (var offer in offersResponse.offers)
-                {
-                    var matchingHotelOffer = allOffersForHotel
-                        .Where(x => x.RoomCode == offer.roomCode)
-                        .Where(x => x.DepartureDateTime == DateTime.ParseExact(
-                                        $"{offer.departureDate} {offer.departureHours}", "yyyy-MM-dd HH:mm",
-                                        CultureInfo.InvariantCulture))
-                        .FirstOrDefault(x =>
-                            x.ReturnDate == DateTime.ParseExact(offer.returnDate, "yyyy-MM-dd",
-                                CultureInfo.InvariantCulture));
+                    var offersResponse = await GetAllOffers(hotel.hotelCode, requestSender);
 
-                    if (matchingHotelOffer == null)
+                    var hotelOffers = GetOffersForHotel(databaseContext, matchingHotel).ToList();
+
+                    foreach (var offer in offersResponse.offers)
                     {
-                        var newHotelOffer = new Offer
-                        {
-                            Hotel = matchingHotel,
-                            DepartureDateTime = DateTime.ParseExact($"{offer.departureDate} {offer.departureHours}",
-                                "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture),
-                            ReturnDate = DateTime.ParseExact(offer.returnDate, "yyyy-MM-dd",
-                                CultureInfo.InvariantCulture),
-                            RoomCode = offer.roomCode,
-                            RoomName = offer.roomName,
-                            Board = offer.boardName,
-                            Code = offer.offerCode
-                        };
-
-                        databaseContext.Offers.Add(newHotelOffer);
-                        databaseContext.SaveChanges();
-                        matchingHotelOffer = newHotelOffer;
+                        var matchingHotelOffer = FindMatchingHotelOffer(hotelOffers, offer) ??
+                                                 AddHotelOffer(databaseContext, matchingHotel, offer);
+                        AddHotelOfferPrice(databaseContext, matchingHotelOffer, offer);
                     }
 
-                    await databaseContext.Prices.AddAsync(new Price
-                    {
-                        Offer = matchingHotelOffer,
-                        DiscountPrice = offer.discountPrice,
-                        StandardPrice = offer.price,
-                        Timestamp = DateTime.UtcNow
-                    });
+                    Console.WriteLine($"Finished processing hotel: {matchingHotel.Id} {DateTime.UtcNow}");
                 }
-
-                databaseContext.SaveChanges();
-                Console.WriteLine($"Finished processing hotel: {matchingHotel.Id} {DateTime.UtcNow}");
             }
             catch (Exception e)
             {
                 Console.WriteLine($"Error: {e.Message}");
                 Console.WriteLine($"Inner exception: {e.InnerException}");
             }
+        }
+
+        private static void AddHotelOfferPrice(DatabaseContext databaseContext, Offer matchingHotelOffer, AllOffer offer)
+        {
+            databaseContext.Prices.Add(new Price
+            {
+                Offer = matchingHotelOffer,
+                DiscountPrice = offer.discountPrice,
+                StandardPrice = offer.price,
+                Timestamp = DateTime.UtcNow
+            });
+            databaseContext.SaveChanges();
+        }
+
+        private static Offer AddHotelOffer(DatabaseContext databaseContext, Hotel matchingHotel, AllOffer offer)
+        {
+            var newHotelOffer = new Offer
+            {
+                Hotel = matchingHotel,
+                DepartureDateTime = DateTime.ParseExact($"{offer.departureDate} {offer.departureHours}",
+                    "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture),
+                ReturnDate = DateTime.ParseExact(offer.returnDate, "yyyy-MM-dd",
+                    CultureInfo.InvariantCulture),
+                RoomCode = offer.roomCode,
+                RoomName = offer.roomName,
+                Board = offer.boardName,
+                Code = offer.offerCode
+            };
+            
+            databaseContext.Offers.Add(newHotelOffer);
+            databaseContext.SaveChanges();
+
+            return newHotelOffer;
+        }
+
+        private static Offer FindMatchingHotelOffer(IEnumerable<Offer> allOffersForHotel, AllOffer offer)
+        {
+            var matchingHotelOffer = allOffersForHotel
+                .Where(x => x.Code == offer.offerCode)
+                .Where(x => x.RoomCode == offer.roomCode)
+                .Where(x => x.DepartureDateTime == DateTime.ParseExact(
+                                $"{offer.departureDate} {offer.departureHours}", "yyyy-MM-dd HH:mm",
+                                CultureInfo.InvariantCulture))
+                .FirstOrDefault(x =>
+                    x.ReturnDate == DateTime.ParseExact(offer.returnDate, "yyyy-MM-dd",
+                        CultureInfo.InvariantCulture));
+            return matchingHotelOffer;
+        }
+
+        private static IQueryable<Offer> GetOffersForHotel(DatabaseContext databaseContext, Hotel matchingHotel)
+        {
+            return databaseContext.Offers.Where(x => x.Hotel.Equals(matchingHotel));
+        }
+
+        private static void AddTripAdvisorHotelRating(DatabaseContext databaseContext, Domain.Offer hotel, Hotel matchingHotel)
+        {
+            var tripAdvisorRating = new TripAdvisorHotelRating
+            {
+                Hotel = matchingHotel,
+                Timestamp = DateTime.UtcNow,
+                TripAdvisorRating = hotel.tripAdvisorRating,
+                TripAdvisorReviewsNo = hotel.tripAdvisorReviewsNo
+            };
+            
+            databaseContext.TripAdvisorHotelRatings.Add(tripAdvisorRating);
+            databaseContext.SaveChanges();
+        }
+
+        private static Hotel CreateNewHotel(DatabaseContext databaseContext, Domain.Offer hotel)
+        {
+            var matchingHotel = new Hotel {HotelCode = hotel.hotelCode, HotelStandard = hotel.hotelStandard};
+            databaseContext.Hotels.Add(matchingHotel);
+            databaseContext.SaveChanges();
+
+            return matchingHotel;
+        }
+
+        private static Hotel FindMatchingHotel(DatabaseContext databaseContext, Domain.Offer hotel)
+        {
+            return databaseContext.Hotels.FirstOrDefault(x => x.HotelCode == hotel.hotelCode);
         }
 
         private static async Task<AllOffersResponse> GetAllOffers(string hotelCode, RequestSender requestSender)

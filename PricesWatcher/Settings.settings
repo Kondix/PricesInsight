@@ -1,0 +1,21 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="PricesWatcher" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="HotelCode" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">AYT43034</Value>
+    </Setting>
+    <Setting Name="ProgramMode" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">4</Value>
+    </Setting>
+    <Setting Name="Server" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">localhost</Value>
+    </Setting>
+    <Setting Name="Database" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">master</Value>
+    </Setting>
+    <Setting Name="DepartureDate" Type="System.DateTime" Scope="Application">
+      <Value Profile="(Default)">2019-07-20</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
