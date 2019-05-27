@@ -1,6 +1,6 @@
-﻿using PricesWatcher.Domain;
+﻿using PricesWatcher.Interface.Tui.Domain;
 
-namespace PricesWatcher.DataBuilders
+namespace PricesWatcher.Interface.Tui.DataBuilders
 {
     public static class AllOffersRequestBuilder
     {

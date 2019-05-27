@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace PricesWatcher.Domain
+namespace PricesWatcher.Interface.Tui.Domain
 {
     public class OffersRequest
     {

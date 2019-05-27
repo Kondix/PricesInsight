@@ -4,6 +4,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.28307.168
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PricesWatcher", "PricesWatcher\PricesWatcher.csproj", "{0A94D2CE-9050-4EEE-B49F-B80FC19187ED}"
+	ProjectSection(ProjectDependencies) = postProject
+		{107103C0-E31D-4716-8774-9276AD3B39E1} = {107103C0-E31D-4716-8774-9276AD3B39E1}
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PricesWatcher.Database", "PricesWatcher.Database\PricesWatcher.Database.csproj", "{0211CBCF-D53C-44A2-A4EC-049D319E781E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PricesWatcher.Interface.Tui", "PricesWatcher.Interface.Tui\PricesWatcher.Interface.Tui.csproj", "{107103C0-E31D-4716-8774-9276AD3B39E1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PricesWatcher.Json", "PricesWatcher.Json\PricesWatcher.Json.csproj", "{B004EDD5-998C-4DB2-9E3A-48F539C56A8E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +24,18 @@ Global
 		{0A94D2CE-9050-4EEE-B49F-B80FC19187ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A94D2CE-9050-4EEE-B49F-B80FC19187ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0A94D2CE-9050-4EEE-B49F-B80FC19187ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0211CBCF-D53C-44A2-A4EC-049D319E781E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0211CBCF-D53C-44A2-A4EC-049D319E781E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0211CBCF-D53C-44A2-A4EC-049D319E781E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0211CBCF-D53C-44A2-A4EC-049D319E781E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{107103C0-E31D-4716-8774-9276AD3B39E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{107103C0-E31D-4716-8774-9276AD3B39E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{107103C0-E31D-4716-8774-9276AD3B39E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{107103C0-E31D-4716-8774-9276AD3B39E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B004EDD5-998C-4DB2-9E3A-48F539C56A8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B004EDD5-998C-4DB2-9E3A-48F539C56A8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B004EDD5-998C-4DB2-9E3A-48F539C56A8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B004EDD5-998C-4DB2-9E3A-48F539C56A8E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

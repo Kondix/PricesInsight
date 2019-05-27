@@ -7,15 +7,14 @@
 
   <ItemGroup>
     <PackageReference Include="HtmlAgilityPack" Version="1.11.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.2.4">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Newtonsoft.Json" Version="8.0.3" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" />
     <PackageReference Include="System.Security.Permissions" Version="4.5.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PricesWatcher.Database\PricesWatcher.Database.csproj" />
+    <ProjectReference Include="..\PricesWatcher.Interface.Tui\PricesWatcher.Interface.Tui.csproj" />
+    <ProjectReference Include="..\PricesWatcher.Json\PricesWatcher.Json.csproj" />
   </ItemGroup>
 
   <ItemGroup>
