@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using PricesWatcher.Database.Domain;
 using PricesWatcher.Interface.Tui.Domain;
 
@@ -9,19 +10,28 @@ namespace PricesWatcher.Database.Controllers
 {
     public class HotelDataController
     {
-        public static void AddHotelOfferPrice(DatabaseContext databaseContext, Domain.Offer matchingHotelOffer, AllOffer offer)
+        private readonly DatabaseContext _databaseContext = new DatabaseContext();
+
+        public void AddHotelOfferPrice(Domain.Offer matchingHotelOffer, AllOffer offer)
         {
-            databaseContext.Prices.Add(new Price
+            _databaseContext.Prices.Add(new Price
             {
                 Offer = matchingHotelOffer,
                 DiscountPrice = offer.discountPrice,
                 StandardPrice = offer.price,
                 Timestamp = DateTime.UtcNow
             });
-            databaseContext.SaveChanges();
+            _databaseContext.SaveChanges();
+        }
+        
+        public IQueryable<Price> GetOfferPrices(Domain.Offer offer)
+        {
+            return _databaseContext.Prices
+                .Include(x => x.Offer)
+                .Where(x => x.Offer.Id == offer.Id);
         }
 
-        public static Domain.Offer AddHotelOffer(DatabaseContext databaseContext, Hotel matchingHotel, AllOffer offer)
+        public Domain.Offer AddHotelOffer(Hotel matchingHotel, AllOffer offer)
         {
             var newHotelOffer = new Domain.Offer
             {
@@ -36,15 +46,15 @@ namespace PricesWatcher.Database.Controllers
                 Code = offer.offerCode
             };
 
-            databaseContext.Offers.Add(newHotelOffer);
-            databaseContext.SaveChanges();
+            _databaseContext.Offers.Add(newHotelOffer);
+            _databaseContext.SaveChanges();
 
             return newHotelOffer;
         }
 
-        public static Domain.Offer FindMatchingHotelOffer(IEnumerable<Domain.Offer> allOffersForHotel, AllOffer offer)
+        public Domain.Offer FindMatchingHotelOffer(IEnumerable<Domain.Offer> allOffersForHotel, AllOffer offer)
         {
-            var matchingHotelOffer = allOffersForHotel
+            return allOffersForHotel
                 .Where(x => x.Code == offer.offerCode)
                 .Where(x => x.RoomCode == offer.roomCode)
                 .Where(x => x.DepartureDateTime == DateTime.ParseExact(
@@ -53,15 +63,22 @@ namespace PricesWatcher.Database.Controllers
                 .FirstOrDefault(x =>
                     x.ReturnDate == DateTime.ParseExact(offer.returnDate, "yyyy-MM-dd",
                         CultureInfo.InvariantCulture));
-            return matchingHotelOffer;
         }
 
-        public static IQueryable<Domain.Offer> GetOffersForHotel(DatabaseContext databaseContext, Hotel matchingHotel)
+        public IQueryable<Domain.Offer> GetMatchingHotelOffers(Hotel hotel, DateTime departureDate)
         {
-            return databaseContext.Offers.Where(x => x.Hotel.Equals(matchingHotel));
+            return _databaseContext.Offers
+                .Include(x => x.Hotel)
+                .Where(x => x.Hotel.Id == hotel.Id)
+                .Where(x => x.DepartureDateTime.Date == departureDate);
         }
 
-        public static void AddTripAdvisorHotelRating(DatabaseContext databaseContext, Interface.Tui.Domain.Offer hotel, Hotel matchingHotel)
+        public IQueryable<Domain.Offer> GetOffersForHotel(Hotel matchingHotel)
+        {
+            return _databaseContext.Offers.Where(x => x.Hotel.Equals(matchingHotel));
+        }
+
+        public void AddTripAdvisorHotelRating(Interface.Tui.Domain.Offer hotel, Hotel matchingHotel)
         {
             var tripAdvisorRating = new TripAdvisorHotelRating
             {
@@ -71,22 +88,27 @@ namespace PricesWatcher.Database.Controllers
                 TripAdvisorReviewsNo = hotel.tripAdvisorReviewsNo
             };
 
-            databaseContext.TripAdvisorHotelRatings.Add(tripAdvisorRating);
-            databaseContext.SaveChanges();
+            _databaseContext.TripAdvisorHotelRatings.Add(tripAdvisorRating);
+            _databaseContext.SaveChanges();
         }
 
-        public static Hotel CreateNewHotel(DatabaseContext databaseContext, Interface.Tui.Domain.Offer hotel)
+        public Hotel CreateNewHotel(Interface.Tui.Domain.Offer hotel)
         {
             var matchingHotel = new Hotel { HotelCode = hotel.hotelCode, HotelStandard = hotel.hotelStandard };
-            databaseContext.Hotels.Add(matchingHotel);
-            databaseContext.SaveChanges();
+            _databaseContext.Hotels.Add(matchingHotel);
+            _databaseContext.SaveChanges();
 
             return matchingHotel;
         }
 
-        public static Hotel FindMatchingHotel(DatabaseContext databaseContext, Interface.Tui.Domain.Offer hotel)
+        public Hotel FindMatchingHotel(Interface.Tui.Domain.Offer hotel)
         {
-            return databaseContext.Hotels.FirstOrDefault(x => x.HotelCode == hotel.hotelCode);
+            return FindMatchingHotel(hotel.hotelCode);
+        }
+
+        public Hotel FindMatchingHotel(string hotelCode)
+        {
+            return _databaseContext.Hotels.FirstOrDefault(x => x.HotelCode == hotelCode);
         }
     }
 }
