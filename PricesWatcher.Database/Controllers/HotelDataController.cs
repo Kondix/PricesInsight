@@ -24,7 +24,7 @@ namespace PricesWatcher.Database.Controllers
             _databaseContext.SaveChanges();
         }
         
-        public IQueryable<Price> GetOfferPrices(Domain.Offer offer)
+        public IEnumerable<Price> GetOfferPrices(Domain.Offer offer)
         {
             return _databaseContext.Prices
                 .Include(x => x.Offer)
@@ -65,7 +65,7 @@ namespace PricesWatcher.Database.Controllers
                         CultureInfo.InvariantCulture));
         }
 
-        public IQueryable<Domain.Offer> GetMatchingHotelOffers(Hotel hotel, DateTime departureDate)
+        public IEnumerable<Domain.Offer> GetMatchingHotelOffers(Hotel hotel, DateTime departureDate)
         {
             return _databaseContext.Offers
                 .Include(x => x.Hotel)

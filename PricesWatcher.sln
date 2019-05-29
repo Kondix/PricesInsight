@@ -12,7 +12,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PricesWatcher.Database", "P
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PricesWatcher.Interface.Tui", "PricesWatcher.Interface.Tui\PricesWatcher.Interface.Tui.csproj", "{107103C0-E31D-4716-8774-9276AD3B39E1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PricesWatcher.Json", "PricesWatcher.Json\PricesWatcher.Json.csproj", "{B004EDD5-998C-4DB2-9E3A-48F539C56A8E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PricesWatcher.Json", "PricesWatcher.Json\PricesWatcher.Json.csproj", "{B004EDD5-998C-4DB2-9E3A-48F539C56A8E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PricesWatcher.RestApi", "PricesWatcher.RestApi\PricesWatcher.RestApi.csproj", "{FF16F777-403E-4E4A-BCB2-45EB6E6E4C83}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,6 +38,10 @@ Global
 		{B004EDD5-998C-4DB2-9E3A-48F539C56A8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B004EDD5-998C-4DB2-9E3A-48F539C56A8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B004EDD5-998C-4DB2-9E3A-48F539C56A8E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF16F777-403E-4E4A-BCB2-45EB6E6E4C83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF16F777-403E-4E4A-BCB2-45EB6E6E4C83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF16F777-403E-4E4A-BCB2-45EB6E6E4C83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF16F777-403E-4E4A-BCB2-45EB6E6E4C83}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
